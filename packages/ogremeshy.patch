@@ -1,8 +1,8 @@
-diff -r cbe5bcf779e1 CMakeLists.txt
---- a/CMakeLists.txt	Sun May 26 19:18:38 2013 -0300
-+++ b/CMakeLists.txt	Fri Sep 13 10:27:40 2013 -0500
+diff -r 9bed4a15d956 CMakeLists.txt
+--- a/CMakeLists.txt	Sun Sep 15 15:05:21 2013 -0300
++++ b/CMakeLists.txt	Sat Sep 28 21:52:08 2013 +0200
 @@ -17,17 +17,17 @@
- 	#set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};E:/Projects/SDK/Ogre/CMake/Utils/;E:/Projects/SDK/Ogre/CMake/Packages/")
+ 	#set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};E:/Projects/SDK/OgreLatest/CMake/Utils/;E:/Projects/SDK/OgreLatest/CMake/Packages/")
  endif()
  
 -if(UNIX)
@@ -30,27 +30,33 @@ diff -r cbe5bcf779e1 CMakeLists.txt
  
  if (CMAKE_BUILD_TYPE STREQUAL "")
  	# CMake defaults to leaving CMAKE_BUILD_TYPE empty. This screws up
-@@ -42,9 +42,8 @@
+@@ -42,13 +42,11 @@
  FIND_PACKAGE(wxWidgets COMPONENTS core base aui adv REQUIRED)
  include( "${wxWidgets_USE_FILE}" )
  
 -FIND_PACKAGE(OGRE COMPONENTS Overlay REQUIRED)
 +FIND_PACKAGE(OGRE REQUIRED)
  include_directories( ${OGRE_INCLUDE_DIRS} )
+ foreach(dir ${OGRE_INCLUDE_DIRS})
+-   set(OGRE_Overlay_INCLUDE_DIR ${dir}/Overlay ${OGRE_Overlay_INCLUDE_DIR})
+    set(OGRE_RTSS_INCLUDE_DIR ${dir}/RTShaderSystem ${OGRE_RTSS_INCLUDE_DIR})
+ endforeach(dir)
 -include_directories( ${OGRE_Overlay_INCLUDE_DIR} )
+ include_directories( ${OGRE_RTSS_INCLUDE_DIR} )
  
  if(UNIX)
- 	FIND_PACKAGE(GTK2 COMPONENTS gtk)
-@@ -97,7 +96,7 @@
+@@ -105,9 +103,8 @@
  ADD_EXECUTABLE(OgreMeshy WIN32 ${HEADER_FILES} ${SOURCE_FILES} )
  TARGET_LINK_LIBRARIES( OgreMeshy ${wxWidgets_LIBRARIES} )
  TARGET_LINK_LIBRARIES( OgreMeshy ${OGRE_LIBRARIES} )
--TARGET_LINK_LIBRARIES( OgreMeshy ${OGRE_Overlay_LIBRARIES} )
-+#TARGET_LINK_LIBRARIES( OgreMeshy "E:/Projects/SDK/Ogre/build/lib/Release/OgreMain.lib" )
+-set(OGRE_Overlay_LIBRARIES OgreOverlay)
+ set(OGRE_RTSS_LIBRARIES OgreRTShaderSystem)
+-TARGET_LINK_LIBRARIES( OgreMeshy ${OGRE_Overlay_LIBRARIES} ${OGRE_RTSS_LIBRARIES} )
++TARGET_LINK_LIBRARIES( OgreMeshy ${OGRE_RTSS_LIBRARIES} )
  
  if(UNIX)
  	TARGET_LINK_LIBRARIES( OgreMeshy ${GTK2_LIBRARIES} )
-@@ -148,7 +147,7 @@
+@@ -158,7 +155,7 @@
  #SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/ReadMe.txt")
  # TODO: add the version variable at the top in here
  SET(CPACK_PACKAGE_VERSION_MAJOR "1")
@@ -59,10 +65,23 @@ diff -r cbe5bcf779e1 CMakeLists.txt
  SET(CPACK_PACKAGE_VERSION_PATCH "0")
  SET(CPACK_PACKAGE_INSTALL_DIRECTORY "OgreMeshy")
  
-@@ -188,4 +187,4 @@
+@@ -198,4 +195,4 @@
  	SET(CPACK_SOURCE_STRIP_FILES "")
  ENDIF(WIN32 AND NOT UNIX)
  	#SET(CPACK_PACKAGE_EXECUTABLES "MyExecutable" "My Executable")
 -INCLUDE(CPack)
 \ No newline at end of file
 +INCLUDE(CPack)
+diff -r 9bed4a15d956 src/Core/wxOgreMeshViewerMainFrameImpl.cpp
+--- a/src/Core/wxOgreMeshViewerMainFrameImpl.cpp	Sun Sep 15 15:05:21 2013 -0300
++++ b/src/Core/wxOgreMeshViewerMainFrameImpl.cpp	Sat Sep 28 21:52:08 2013 +0200
+@@ -877,8 +877,7 @@
+ 			//Reloading the material is necessary because the material may not have been defined
+ 			//among the resources we're reloading, but this material may be using shaders that no
+ 			//long exist.
+-			Ogre::MaterialPtr pMat = Ogre::MaterialManager::getSingleton().getByName( materialNames[i] ).
+-																			staticCast<Ogre::Material>();
++			Ogre::MaterialPtr pMat = Ogre::MaterialManager::getSingleton().getByName( materialNames[i] );
+ 			pMat->reload();
+ 			m_meshEntity->getSubEntity(i)->setMaterial( pMat );
+ 		}
