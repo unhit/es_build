@@ -4,7 +4,7 @@ import subprocess
 
 packages = [
     'gettext',
-    'libboost1.40-all-dev',
+    'libboost-all-dev',
     'libcurl4-gnutls-dev',
     'libexpat1-dev',
     'libfreeimage-dev',
